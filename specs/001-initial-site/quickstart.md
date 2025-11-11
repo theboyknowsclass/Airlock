@@ -1,14 +1,14 @@
 # Quickstart: Initial Site Feature
 
 ## Prerequisites
-- Node.js 20.x with `corepack enable` (pnpm preferred)
+- Node.js 20.x with npm
 - Python 3.11 with uv or pip
 - Docker (for container parity)
 
 ## Setup
 ```bash
-# Frontend
-pnpm install
+# Frontend (run from repo root)
+npm install --prefix frontend
 
 # Backend
 uv pip install -r backend/requirements-dev.txt
@@ -38,7 +38,7 @@ Feature: Display server version on the initial site
 ### Run BDD Suites
 ```bash
 # Frontend cucumber-js suite
-pnpm test:bdd
+npm run -w frontend test:bdd
 
 # Backend pytest-bdd suite
 uv run pytest tests/bdd
@@ -48,30 +48,37 @@ Scenarios must fail before implementation begins, then be driven to pass alongsi
 ## Accessibility Regression Checks
 ```bash
 # Frontend accessibility smoke (axe + Storybook)
-pnpm test:a11y
+npm run -w frontend test:a11y
 
 # End-to-end keyboard audit script
-pnpm test:keyboard
+npm run -w frontend test:keyboard
 ```
+
+# Component Unit Tests
+- Component and hook tests live alongside their source files using the `*.test.ts(x)` convention (e.g., `ServerVersionBadge.test.tsx`).
+- Run all co-located Vitest suites:
+  ```bash
+  npm run -w frontend test
+  ```
 
 ## Storybook Component Review
 ```bash
 # Launch Storybook with accessibility addons
-pnpm storybook
+npm run -w frontend storybook
 ```
 Use Storybook to document `ServerVersionPlaceholder`, `ServerVersionBadge`, and the error view; verify WCAG notes and design tokens before merging UI changes.
 
 ## Performance Smoke Test
 ```bash
-# Measure /api/version latency (p95 ≤ 250 ms)
-pnpm ts-node scripts/perf/check-version-latency.ts
+# Measure /api/version latency (p95 ≤ 250 ms) from repo root
+npx ts-node scripts/perf/check-version-latency.ts
 ```
 Ensure results are captured for CI and referenced in documentation.
 
 ## Fast Feedback Loop
 ```bash
 # Frontend dev server with strict type-checking
-pnpm dev -- --strictPort
+npm run -w frontend dev -- --strictPort
 
 # Backend auto-reload service
 uv run uvicorn backend.src.main:app --reload --port 8080

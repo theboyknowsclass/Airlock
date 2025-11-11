@@ -42,3 +42,7 @@ Rationale: Aligns with the Security-First principle by throttling abusive traffi
 Implementation notes: Middleware inspects client IP, returns HTTP 429 responses with `Retry-After`, and logs blocked attempts through the telemetry pipeline; TLS termination ensures only HTTPS traffic reaches the limiter.  
 Alternatives considered: Fixed-window limiting (allows burst spikes at window edges); no rate limit (violates security mandate and risks abuse).
 
+Decision: Co-locate unit and component tests beside their source files using a `*.test.ts(x)` convention.  
+Rationale: Keeps tests tightly coupled with the implementation, simplifies refactors, and mirrors constitution guidance for React projects.  
+Alternatives considered: Centralized `tests/unit` directory (creates drift between code and tests), ad-hoc naming (hurts discoverability).
+

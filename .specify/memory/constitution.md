@@ -98,12 +98,13 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 - **Testing**: pytest with coverage reporting
 - **Structure**: Tests in separate `tests/` folder with local component tests
 
-### React/TypeScript Development
+-### React/TypeScript Development
 - **Language**: TypeScript (latest LTS)
 - **Framework**: React 18+ with latest LTS
 - **Build Tool**: Vite (latest version)
 - **Preferred Libraries**: TanStack Router for routing, TanStack Query for server state, Axios for HTTP client adapters, React Hook Form for form handling, Zustand for lightweight client state, and MUI for component primitives. Any deviation MUST include written justification in the plan.
-- **Testing**: Vitest with MSW for mocking
+- **Package Manager**: npm (latest LTS); lockfiles MUST be committed
+- **Testing**: Vitest with MSW for mocking; unit/component tests MUST live alongside the component/service files and follow `*.test.ts(x)` naming
 - **UI Testing**: Storybook for component testing
 - **Accessibility Testing**: axe-core and Storybook Accessibility add-on with 
   automated WCAG 2.1 AA rule enforcement in CI

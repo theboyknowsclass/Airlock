@@ -91,6 +91,7 @@ Deliver a public initial site that renders an accessible loading placeholder in 
 - Accessibility: Loading placeholder announced via `aria-live="polite"`, error view traps and releases focus, and automated axe/Lighthouse checks run in CI.  
 - Minimalism: Router, form, and global state libs are not instantiated to keep footprint small; deviations documented here per constitution v10.1.0.  
 - Tooling: Storybook documents UI components for accessibility review; performance smoke script (`scripts/perf/check-version-latency.ts`) guards the 250 ms latency target.
+- Testing placement: Component and hook unit tests live alongside their source files using `*.test.ts(x)` naming; cross-cutting BDD/accessibility suites stay under `frontend/tests/`.
 
 ## Project Structure
 
@@ -127,8 +128,7 @@ frontend/
 │   └── styles/
 └── tests/
     ├── bdd/
-    ├── accessibility/
-    └── unit/
+    └── accessibility/
 
 contracts/
 └── version.openapi.yaml
