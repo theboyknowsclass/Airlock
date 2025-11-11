@@ -40,6 +40,7 @@ A visitor lands on the initial site, sees the layout load with a loading placeho
 - **FR-006**: System MUST achieve WCAG 2.1 AA accessibility for the loading state, version display, and error experience, including focus management, color contrast, and assistive technology announcements.
 - **FR-007**: System MUST log failures to retrieve the server version to the standard application logs for operational visibility.
 - **FR-008**: System MUST treat the server version request as failed if no successful response is received within one second of initiation.
+- **FR-009**: System MUST ensure the initial site and `/api/version` are delivered exclusively over HTTPS and enforce rate limiting to prevent abuse while maintaining observability of blocked requests.
 
 ### Key Entities
 - **Server Version**: Represents the textual identifier of the running server build (e.g., semantic version, commit hash). Attributes include the version string, retrieval timestamp, and source of truth; no persistence requirements defined beyond display.
@@ -54,7 +55,7 @@ A visitor lands on the initial site, sees the layout load with a loading placeho
 - [x] Focused on user value and business needs
 - [x] Written for non-technical stakeholders
 - [x] All mandatory sections completed
-- [ ] Security requirements explicitly defined
+- [x] Security requirements explicitly defined
 - [x] Minimal scope captured (no unnecessary deliverables)
 - [x] Accessibility requirements and WCAG 2.1 AA criteria documented
 

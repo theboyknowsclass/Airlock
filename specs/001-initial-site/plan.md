@@ -44,7 +44,7 @@ Deliver a public initial site that renders an accessible loading placeholder in 
 **Target Platform**: Modern browsers + containerized FastAPI service  
 **Project Type**: web  
 **Performance Goals**: Version response latency ≤ 250 ms during normal operation  
-**Constraints**: Enforce one-second client timeout; WCAG 2.1 AA compliance; unauthenticated public endpoint; structured logging  
+**Constraints**: Enforce one-second client timeout; WCAG 2.1 AA compliance; unauthenticated public endpoint; structured logging; HTTPS-only delivery with rate limiting  
 **Scale/Scope**: Single landing page with < 100 RPS status requests
 
 ## Constitution Check
@@ -85,8 +85,8 @@ Deliver a public initial site that renders an accessible loading placeholder in 
 - [x] Reuse of existing components/services documented where possible
 - [x] Open ambiguities escalated for clarification before adding scope
 
-**Notes**  
-- Security: `/api/version` is HTTPS-only, read-only, rate-limited, and logs failures with contextual metadata.  
+**Notes**
+- Security: `/api/version` and the initial site terminate exclusively over HTTPS (behind TLS), enforce rate limiting with observable logs, and remain read-only.  
 - SOLID/DRY: Frontend separates view (MUI components) from data hooks (TanStack Query) and utility logging; backend isolates version provider, API handler, and telemetry.  
 - Accessibility: Loading placeholder announced via `aria-live="polite"`, error view traps and releases focus, and automated axe/Lighthouse checks run in CI.  
 - Minimalism: Router, form, and global state libs are not instantiated to keep footprint small; deviations documented here per constitution v10.1.0.
@@ -146,7 +146,7 @@ contracts/
    - Reviewed TanStack Query best practices for critical status polling.
    - Validated Axios + AbortController integration patterns.
    - Collected guidance on focus management for full-page error states.
-   - Surveyed FastAPI logging and timeout coordination patterns.
+- Surveyed FastAPI logging, timeout coordination, HTTPS enforcement, and rate-limiting patterns.
 
 3. **Consolidate findings** in `research.md` using format:
    - Recorded decisions for stack selection, timeout handling, error UI, logging, and BDD tooling with alternatives considered.
@@ -179,12 +179,12 @@ contracts/
 **Task Generation Strategy**:
 - Base tasks on `tasks-template.md`, deriving work items from contracts, data model, and BDD scenarios.
 - Ensure cucumber-js and pytest-bdd scenarios are authored first and fail before implementation.
-- Create contract validation tasks for `GET /api/version`, TanStack Query hook construction, MUI components, and telemetry logging.
+- Create contract validation tasks for `GET /api/version`, TanStack Query hook construction, MUI components, telemetry logging, HTTPS enforcement, and rate limiting.
 - Schedule accessibility automation (axe, Lighthouse) and keyboard audit tasks.
 
 **Ordering Strategy**:
-- Execute in BDD-first order: scenarios → contract tests → backend services → frontend data hooks → UI components → accessibility verification.
-- Backend logging and timeout enforcement precede frontend rendering to guarantee observable failures.
+- Execute in BDD-first order: scenarios → contract tests → backend services → security controls → frontend data hooks → UI components → accessibility verification.
+- Backend logging, timeout enforcement, and security controls precede frontend rendering to guarantee observable failures.
 - Mark naturally parallel tasks `[P]` (e.g., frontend and backend unit test scaffolds).
 
 **Estimated Output**: 20-24 numbered tasks balancing BDD, contracts, implementation, telemetry, and accessibility checks.
