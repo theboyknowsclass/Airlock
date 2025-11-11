@@ -13,7 +13,7 @@
    → Set Structure Decision based on project type
 3. Fill the Constitution Check section based on the content of the constitution document.
 4. Evaluate Constitution Check section below
-   → If TDD violations exist: ERROR "TDD is NON-NEGOTIABLE - tests must be written first"
+   → If BDD violations exist: ERROR "BDD is NON-NEGOTIABLE - Gherkin scenarios must precede implementation"
    → If security violations exist: ERROR "Security requirements MUST be met - no exceptions"
    → If SOLID/DRY violations exist: Document in Complexity Tracking with justification
    → If no justification possible: ERROR "Simplify approach first"
@@ -50,10 +50,10 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-### TDD Compliance (NON-NEGOTIABLE)
-- [ ] Tests will be written BEFORE implementation
-- [ ] Test coverage plan defined for all components
-- [ ] Local test structure planned (tests/ folder with component tests)
+### BDD Compliance (NON-NEGOTIABLE)
+- [ ] Gherkin scenarios documented BEFORE implementation
+- [ ] Scenario coverage mapped to all components
+- [ ] Step definitions located alongside component code for traceability
 
 ### Security Requirements (MANDATORY)
 - [ ] Security considerations identified for all components
@@ -206,10 +206,10 @@ directories captured above]
 - Each contract → contract test task [P]
 - Each entity → model creation task [P] 
 - Each user story → integration test task
-- Implementation tasks to make tests pass
+- Implementation tasks to make BDD scenarios pass
 
 **Ordering Strategy**:
-- TDD order: Tests before implementation 
+- BDD order: Gherkin scenarios and automated tests before implementation 
 - Dependency order: Models before services before UI
 - Mark [P] for parallel execution (independent files)
 
@@ -252,4 +252,4 @@ directories captured above]
 - [ ] Accessibility compliance review complete
 
 ---
-*Based on Constitution v2.2.0 - See `/memory/constitution.md`*
+*Based on Constitution v8.0.0 - See `/memory/constitution.md`*

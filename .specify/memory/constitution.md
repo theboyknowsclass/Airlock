@@ -1,13 +1,13 @@
 <!--
 Sync Impact Report:
-Version change: 6.0.0 → 7.0.0 (MAJOR: Added Minimal Implementation principle)
-Modified principles: Core Principles VIII Minimal Implementation & Clarification-First (new)
-Added sections: Core Principles VIII Minimal Implementation & Clarification-First
+Version change: 7.0.0 → 8.0.0 (MAJOR: Replaced TDD mandate with BDD using Cucumber-style language)
+Modified principles: Core Principles I Test-Driven Development (NON-NEGOTIABLE) → Core Principles I Behavior-Driven Development (NON-NEGOTIABLE)
+Added sections: None
 Removed sections: None
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md (no adjustments required)
-  ✅ .specify/templates/spec-template.md (ensure minimal implementation guidance referenced)
-  ✅ .specify/templates/tasks-template.md (ensure minimal implementation guidance referenced)
+  ✅ .specify/templates/plan-template.md (updated for BDD constitution checks)
+  ✅ .specify/templates/spec-template.md (no changes needed)
+  ✅ .specify/templates/tasks-template.md (updated for BDD workflow)
   ⚠️ .specify/templates/commands (directory absent; align future command templates when created)
 Follow-up TODOs: None
 -->
@@ -16,11 +16,13 @@ Follow-up TODOs: None
 
 ## Core Principles
 
-### I. Test-Driven Development (NON-NEGOTIABLE)
-**MANDATORY TDD**: All code MUST follow Red-Green-Refactor cycle. Tests written first, 
-approved by user, tests fail, then implementation. No exceptions. Every feature, 
-service, and component requires comprehensive test coverage before implementation. 
-Tests must be located locally with components for easy coverage visibility.
+### I. Behavior-Driven Development (NON-NEGOTIABLE)
+**MANDATORY BDD**: All validation MUST begin with Cucumber-style scenarios written 
+in Gherkin (Given/When/Then) before implementation. Scenarios MUST be authored and 
+approved prior to coding, executed to fail first, then drive the implementation 
+that satisfies them. Every feature, service, and component requires comprehensive 
+BDD coverage aligned with user behaviors. Step definitions and implementation 
+reside alongside components for clear traceability between behavior and code.
 
 ### II. Security-First Architecture
 **SECURITY BY DESIGN**: Every component MUST implement security best practices from 
@@ -126,7 +128,7 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 
 ### Code Review Process
 - All code changes require security review
-- TDD compliance verification mandatory
+- BDD scenario coverage verification mandatory (scenarios exist, fail first, then pass)
 - SOLID principles adherence check
 - Security vulnerability scanning
 - Accessibility compliance verification including automated accessibility test 
@@ -135,6 +137,7 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 
 ### Quality Gates
 - 100% test coverage for security-critical components
+- BDD scenarios implemented for all acceptance criteria and executed in CI
 - Zero high/critical security vulnerabilities (Trivy validation)
 - All linting and type checking passes
 - Performance benchmarks met
@@ -143,4 +146,4 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 - Automated accessibility tests pass with WCAG 2.1 AA conformance and no 
   blockers across supported browsers
 
-**Version**: 7.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11
+**Version**: 8.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11

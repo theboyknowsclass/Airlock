@@ -14,7 +14,7 @@
    → research.md: Extract decisions → setup tasks
 3. Generate tasks by category:
    → Setup: project init, dependencies, linting
-   → Tests: contract tests, integration tests
+   → BDD Scenarios: Gherkin features, contract validations, integration behaviors
    → Core: models, services, CLI commands
    → Integration: DB, middleware, logging
    → Accessibility: automated audits, manual verification
@@ -23,7 +23,7 @@
 4. Apply task rules:
    → Different files = mark [P] for parallel
    → Same file = sequential (no [P])
-   → Tests before implementation (TDD)
+   → BDD scenarios and automated tests before implementation
 5. Number tasks sequentially (T001, T002...)
 6. Generate dependency graph
 7. Create parallel execution examples
@@ -50,18 +50,18 @@
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
 
-## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
-**CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
-**SECURITY: All security-critical components require comprehensive test coverage**
-- [ ] T004 [P] Contract test POST /api/users in tests/contract/test_users_post.py
-- [ ] T005 [P] Contract test GET /api/users/{id} in tests/contract/test_users_get.py
-- [ ] T006 [P] Integration test user registration in tests/integration/test_registration.py
-- [ ] T007 [P] Integration test auth flow in tests/integration/test_auth.py
-- [ ] T008 [P] Security test authentication bypass in tests/security/test_auth_bypass.py
-- [ ] T009 [P] Security test input validation in tests/security/test_input_validation.py
-- [ ] T010 [P] Automated accessibility regression test suite in tests/accessibility/axe.spec.ts
+## Phase 3.2: Behavior Scenarios First (BDD) ⚠️ MUST COMPLETE BEFORE 3.3
+**CRITICAL: Gherkin feature files and step stubs MUST exist and MUST FAIL before ANY implementation**
+**SECURITY: All security-critical scenarios require comprehensive coverage in feature files**
+- [ ] T004 [P] Author `features/users_post.feature` (Given/When/Then) with pending steps
+- [ ] T005 [P] Author `features/users_get.feature` covering happy + error paths with pending steps
+- [ ] T006 [P] Author `features/user_registration.feature` validating end-to-end journey with pending steps
+- [ ] T007 [P] Author `features/auth_flow.feature` covering MFA + token refresh behaviors with pending steps
+- [ ] T008 [P] Author `features/security/authentication_bypass.feature` capturing defense scenarios with pending steps
+- [ ] T009 [P] Author `features/security/input_validation.feature` asserting sanitization behaviors with pending steps
+- [ ] T010 [P] Author `features/accessibility/regression.feature` ensuring WCAG flows with pending steps
 
-## Phase 3.3: Core Implementation (ONLY after tests are failing)
+## Phase 3.3: Core Implementation (ONLY after BDD scenarios are failing)
 - [ ] T011 [P] User model in src/models/user.py
 - [ ] T012 [P] UserService CRUD in src/services/user_service.py
 - [ ] T013 [P] CLI --create-user in src/cli/user_commands.py
@@ -89,7 +89,7 @@
 - [ ] T031 Manual accessibility audit (keyboard navigation + screen reader smoke tests)
 
 ## Dependencies
-- Tests (T004-T010) before implementation (T011-T019)
+- BDD scenarios (T004-T010) before implementation (T011-T019)
 - T011 blocks T012, T020
 - T018 blocks T021
 - T019 blocks T021
@@ -97,19 +97,19 @@
 
 ## Parallel Example
 ```
-# Launch T004-T009 together (all tests):
-Task: "Contract test POST /api/users in tests/contract/test_users_post.py"
-Task: "Contract test GET /api/users/{id} in tests/contract/test_users_get.py"
-Task: "Integration test registration in tests/integration/test_registration.py"
-Task: "Integration test auth in tests/integration/test_auth.py"
-Task: "Security test authentication bypass in tests/security/test_auth_bypass.py"
-Task: "Security test input validation in tests/security/test_input_validation.py"
+# Launch T004-T009 together (all BDD features):
+Task: "Author features/users_post.feature"
+Task: "Author features/users_get.feature"
+Task: "Author features/user_registration.feature"
+Task: "Author features/auth_flow.feature"
+Task: "Author features/security/authentication_bypass.feature"
+Task: "Author features/security/input_validation.feature"
 ```
 
 ## Notes
 - [P] tasks = different files, no dependencies
-- Verify tests fail before implementing (TDD MANDATORY)
-- Security tests must be comprehensive and pass
+- Verify BDD runs produce pending/failed steps before implementing (BDD MANDATORY)
+- Security scenarios must be comprehensive and pass
 - Default to reusing existing files; if a new file is unavoidable, note the rationale in the task
 - Commit after each task
 - Avoid: vague tasks, same file conflicts
@@ -131,7 +131,7 @@ Task: "Security test input validation in tests/security/test_input_validation.py
    - Quickstart scenarios → validation tasks
 
 4. **Ordering**:
-   - Setup → Tests → Models → Services → Endpoints → Polish
+   - Setup → BDD Scenarios → Models → Services → Endpoints → Polish
    - Dependencies block parallel execution
 
 ## Validation Checklist
@@ -139,7 +139,7 @@ Task: "Security test input validation in tests/security/test_input_validation.py
 
 - [ ] All contracts have corresponding tests
 - [ ] All entities have model tasks
-- [ ] All tests come before implementation (TDD compliance)
+- [ ] All BDD scenarios come before implementation (BDD compliance)
 - [ ] Security tests included for all security-critical components
 - [ ] Accessibility tests (automated + manual) included and scheduled before release
 - [ ] Parallel tasks truly independent
