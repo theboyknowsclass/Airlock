@@ -1,13 +1,13 @@
 <!--
 Sync Impact Report:
-Version change: 2.1.0 → 2.2.0 (MINOR: Added accessibility governance and validation)
-Modified principles: None
-Added sections: Core Principles VI Accessibility-Driven UX, Accessibility Requirements
+Version change: 6.0.0 → 7.0.0 (MAJOR: Added Minimal Implementation principle)
+Modified principles: Core Principles VIII Minimal Implementation & Clarification-First (new)
+Added sections: Core Principles VIII Minimal Implementation & Clarification-First
 Removed sections: None
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md (added accessibility constitution gates)
-  ✅ .specify/templates/spec-template.md (added WCAG compliance checklist items)
-  ✅ .specify/templates/tasks-template.md (added automated accessibility tasks)
+  ✅ .specify/templates/plan-template.md (no adjustments required)
+  ✅ .specify/templates/spec-template.md (ensure minimal implementation guidance referenced)
+  ✅ .specify/templates/tasks-template.md (ensure minimal implementation guidance referenced)
   ⚠️ .specify/templates/commands (directory absent; align future command templates when created)
 Follow-up TODOs: None
 -->
@@ -62,6 +62,13 @@ differences between dev and production environments. Docker files abstracted
 for environment alignment. External dependencies require mock services in dev 
 containers. Configuration management through environment variables and secrets.
 
+### VIII. Minimal Implementation & Clarification-First
+**LEAN DELIVERY**: Always prefer the smallest viable change set. Fewer files, 
+fewer lines of code, and reuse of existing components are mandatory goals. 
+When ambiguity exists, stop and clarify with stakeholders instead of guessing 
+or over-specifying. Every implementation MUST demonstrate why additional files 
+or abstractions are unavoidable. Speculative extensibility is prohibited.
+
 ## Security Requirements
 
 ### Authentication & Authorization
@@ -72,26 +79,6 @@ containers. Configuration management through environment variables and secrets.
 - Role-based access control with principle of least privilege
 - Session management with secure token handling via ADFS/OAuth 2 providers
 - API authentication via ADFS-issued or OAuth 2 JWT tokens with short expiration times
-
-### Data Protection
-- All data at rest encrypted using AES-256
-- All data in transit encrypted using TLS 1.3
-- Sensitive data (API keys, tokens) stored in secure vaults
-- Regular security scanning and vulnerability assessments
-
-### Audit & Compliance
-- Comprehensive audit logging for all security events
-- Immutable audit trails with tamper detection
-- Compliance with security frameworks (OWASP, NIST)
-- Regular penetration testing and security reviews
-
-### Vulnerability Management
-- **Trivy Integration**: Trivy vulnerability scanner MUST be integrated for 
-  comprehensive security scanning of containers, dependencies, and code
-- Automated vulnerability scanning in CI/CD pipeline
-- Zero tolerance for high and critical vulnerabilities
-- Regular dependency updates with Trivy validation
-- Container image scanning with Trivy before deployment
 
 ## Accessibility Requirements
 
@@ -156,32 +143,4 @@ containers. Configuration management through environment variables and secrets.
 - Automated accessibility tests pass with WCAG 2.1 AA conformance and no 
   blockers across supported browsers
 
-### Deployment Pipeline
-- Automated testing in containerized environments
-- Trivy security scanning at every stage
-- Blue-green deployment with rollback capability
-- Environment-specific configuration validation
-- Monitoring and alerting for security events
-- ADFS integration validation in all environments
-- Automated accessibility regression tests executed on production build 
-  artifacts prior to release approvals
-
-## Governance
-
-**Constitution Supremacy**: This constitution supersedes all other development 
-practices and must be followed without exception. Any deviation requires 
-explicit justification and approval from security team.
-
-**Amendment Process**: Constitution amendments require:
-1. Security team review and approval
-2. Impact assessment on existing codebase
-3. Migration plan for any breaking changes
-4. Documentation updates across all templates
-5. Version increment following semantic versioning
-
-**Compliance Monitoring**: All pull requests and code reviews MUST verify 
-constitution compliance. Automated tools will enforce TDD, security scanning, 
-code quality, and accessibility standards. Manual review required for any 
-complexity justifications, security exceptions, or accessibility deferrals.
-
-**Version**: 2.2.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11
+**Version**: 7.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11

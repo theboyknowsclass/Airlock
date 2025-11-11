@@ -31,6 +31,7 @@
 - ✅ Focus on WHAT users need and WHY
 - ❌ Avoid HOW to implement (no tech stack, APIs, code structure)
 - 👥 Written for business stakeholders, not developers
+- 📉 Default to the smallest viable solution—clarify uncertainty instead of adding speculative scope
 
 ### Section Requirements
 - **Mandatory sections**: Must be completed for every feature
@@ -96,7 +97,7 @@ When creating this spec from a user prompt:
 - [ ] Written for non-technical stakeholders
 - [ ] All mandatory sections completed
 - [ ] Security requirements explicitly defined
-- [ ] Compliance and audit requirements specified
+- [ ] Minimal scope captured (no unnecessary deliverables)
 - [ ] Accessibility requirements and WCAG 2.1 AA criteria documented
 
 ### Requirement Completeness
@@ -108,6 +109,7 @@ When creating this spec from a user prompt:
 - [ ] Security test scenarios defined
 - [ ] Performance and scalability requirements specified
 - [ ] Accessibility acceptance tests identified (automated + manual)
+- [ ] Open questions documented instead of speculative answers
 
 ---
 

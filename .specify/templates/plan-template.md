@@ -79,6 +79,11 @@
 - [ ] Automated accessibility testing integrated into test plan
 - [ ] Keyboard navigation and screen reader flows validated in design
 
+### Minimal Implementation
+- [ ] Minimal change set identified with justification for any new files
+- [ ] Reuse of existing components/services documented where possible
+- [ ] Open ambiguities escalated for clarification before adding scope
+
 ## Project Structure
 
 ### Documentation (this feature)

@@ -19,6 +19,7 @@
    → Integration: DB, middleware, logging
    → Accessibility: automated audits, manual verification
    → Polish: unit tests, performance, docs
+   → Minimal additions only: skip tasks that introduce new files when existing assets suffice
 4. Apply task rules:
    → Different files = mark [P] for parallel
    → Same file = sequential (no [P])
@@ -30,6 +31,7 @@
    → All contracts have tests?
    → All entities have models?
    → All endpoints implemented?
+   → Any task that adds a file/code path must justify why reuse is impossible
 9. Return: SUCCESS (tasks ready for execution)
 ```
 
@@ -108,6 +110,7 @@ Task: "Security test input validation in tests/security/test_input_validation.py
 - [P] tasks = different files, no dependencies
 - Verify tests fail before implementing (TDD MANDATORY)
 - Security tests must be comprehensive and pass
+- Default to reusing existing files; if a new file is unavoidable, note the rationale in the task
 - Commit after each task
 - Avoid: vague tasks, same file conflicts
 - All security-critical components require dedicated security tests
@@ -144,3 +147,4 @@ Task: "Security test input validation in tests/security/test_input_validation.py
 - [ ] No task modifies same file as another [P] task
 - [ ] Container configuration tasks included
 - [ ] Security scanning and vulnerability assessment tasks included
+- [ ] Every task reflects the minimum necessary change; extra scope justified
