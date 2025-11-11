@@ -1,0 +1,82 @@
+openapi: 3.1.0
+info:
+  title: Initial Site Server Version API
+  version: 0.1.0
+  description: >
+    Public endpoint that exposes the running server version for the Initial Site.
+    The endpoint is unauthenticated and intended for read-only status checks.
+servers:
+  - url: https://{host}
+    variables:
+      host:
+        default: localhost:8080
+paths:
+  /api/version:
+    get:
+      operationId: getServerVersion
+      summary: Retrieve the current server version label
+      description: >
+        Returns metadata required to display the server version on the Initial Site.
+        Clients MUST enforce a 1-second timeout and handle dedicated error views.
+      tags:
+        - version
+      responses:
+        '200':
+          description: Server version successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerVersionResponse'
+        '503':
+          description: Service unavailable or version source unreachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security: []
+components:
+  schemas:
+    ServerVersionResponse:
+      type: object
+      required:
+        - version
+        - retrievedAt
+        - displayLabel
+      properties:
+        version:
+          type: string
+          maxLength: 40
+          description: Semantic version or commit hash of the running server build.
+        buildTimestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp indicating when the build was created.
+        retrievedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp generated when the response is emitted.
+        displayLabel:
+          type: string
+          description: Human-readable label to display in the UI (e.g., "v1.4.2").
+        source:
+          type: string
+          description: Identifier for the service producing the version metadata.
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Machine-readable error code.
+        message:
+          type: string
+          description: Localizable human-readable error message for display/logging.
+

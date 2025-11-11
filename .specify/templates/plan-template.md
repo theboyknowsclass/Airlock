@@ -69,7 +69,7 @@
 
 ### Technology Standards Compliance
 - [ ] Python: PEP8, MyPy, Flake8, pytest planned
-- [ ] React/TypeScript: ESLint, Prettier, Vitest, Storybook planned
+- [ ] React/TypeScript: ESLint, Prettier, Vitest, Storybook, and preferred stack (TanStack Router/Query, Axios, React Hook Form, Zustand, MUI) planned or deviations justified
 - [ ] Containerization strategy defined
 - [ ] Latest LTS versions specified for all dependencies
 - [ ] Accessibility testing approach defined (axe, pa11y, Lighthouse)

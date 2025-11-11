@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report:
-Version change: 9.0.0 → 10.0.0 (MAJOR: Removed governance mandate added in previous version)
-Modified principles: None
+Version change: 10.0.0 → 10.1.0 (MINOR: Added preferred React library stack guidance)
+Modified principles: Technology Standards → Technology Standards
 Added sections: None
-Removed sections: Governance
+Removed sections: None
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md (updated constitution reference)
+  ✅ .specify/templates/plan-template.md (React standards expanded)
   ✅ .specify/templates/spec-template.md (no changes needed)
   ✅ .specify/templates/tasks-template.md (no changes needed)
   ⚠️ .specify/templates/commands (directory absent; align future command templates when created)
@@ -102,6 +102,7 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 - **Language**: TypeScript (latest LTS)
 - **Framework**: React 18+ with latest LTS
 - **Build Tool**: Vite (latest version)
+- **Preferred Libraries**: TanStack Router for routing, TanStack Query for server state, Axios for HTTP client adapters, React Hook Form for form handling, Zustand for lightweight client state, and MUI for component primitives. Any deviation MUST include written justification in the plan.
 - **Testing**: Vitest with MSW for mocking
 - **UI Testing**: Storybook for component testing
 - **Accessibility Testing**: axe-core and Storybook Accessibility add-on with 
@@ -131,4 +132,4 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 - Automated accessibility tests pass with WCAG 2.1 AA conformance and no 
   blockers across supported browsers
 
-**Version**: 10.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11
+**Version**: 10.1.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11

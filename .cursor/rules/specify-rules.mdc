@@ -1,0 +1,28 @@
+# Airlock Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-11-11
+
+## Active Technologies
+- TypeScript (React 18) / Python 3.11 + Vite, FastAPI, @cucumber/cucumber, pytest-bdd (001-initial-site)
+- TypeScript (React 18) / Python 3.11 + Vite, FastAPI, TanStack Query, Axios, MUI, @cucumber/cucumber, pytest-bdd (001-initial-site)
+- N/A (read-only endpoint, no persistence) (001-initial-site)
+
+## Project Structure
+```
+backend/
+frontend/
+tests/
+```
+
+## Commands
+cd src; pytest; ruff check .
+
+## Code Style
+TypeScript (React 18) / Python 3.11: Follow standard conventions
+
+## Recent Changes
+- 001-initial-site: Added TypeScript (React 18) / Python 3.11 + Vite, FastAPI, TanStack Query, Axios, MUI, @cucumber/cucumber, pytest-bdd
+- 001-initial-site: Added TypeScript (React 18) / Python 3.11 + Vite, FastAPI, @cucumber/cucumber, pytest-bdd
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
