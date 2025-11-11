@@ -36,6 +36,7 @@
 - **Mandatory sections**: Must be completed for every feature
 - **Optional sections**: Include only when relevant to the feature
 - When a section doesn't apply, remove it entirely (don't leave as "N/A")
+- Capture accessibility expectations (WCAG 2.1 AA) alongside security and compliance needs
 
 ### For AI Generation
 When creating this spec from a user prompt:
@@ -60,6 +61,7 @@ When creating this spec from a user prompt:
 ### Acceptance Scenarios
 1. **Given** [initial state], **When** [action], **Then** [expected outcome]
 2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+- Include at least one scenario validating accessibility acceptance criteria (e.g., keyboard navigation, screen reader announcement)
 
 ### Edge Cases
 - What happens when [boundary condition]?
@@ -73,10 +75,11 @@ When creating this spec from a user prompt:
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
+- **FR-006**: System MUST achieve WCAG 2.1 AA accessibility for [specific flows/components]
 
 *Example of marking unclear requirements:*
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+- **FR-007**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
+- **FR-008**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
 ### Key Entities *(include if feature involves data)*
 - **[Entity 1]**: [What it represents, key attributes without implementation]
@@ -94,6 +97,7 @@ When creating this spec from a user prompt:
 - [ ] All mandatory sections completed
 - [ ] Security requirements explicitly defined
 - [ ] Compliance and audit requirements specified
+- [ ] Accessibility requirements and WCAG 2.1 AA criteria documented
 
 ### Requirement Completeness
 - [ ] No [NEEDS CLARIFICATION] markers remain
@@ -103,6 +107,7 @@ When creating this spec from a user prompt:
 - [ ] Dependencies and assumptions identified
 - [ ] Security test scenarios defined
 - [ ] Performance and scalability requirements specified
+- [ ] Accessibility acceptance tests identified (automated + manual)
 
 ---
 

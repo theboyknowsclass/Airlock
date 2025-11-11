@@ -1,15 +1,15 @@
 <!--
 Sync Impact Report:
-Version change: 2.0.0 → 2.1.0 (MINOR: Authentication and vulnerability scanning specifications)
-Modified principles: Updated authentication and package manager extensibility
-Added sections: ADFS authentication specification, Trivy vulnerability scanning
+Version change: 2.1.0 → 2.2.0 (MINOR: Added accessibility governance and validation)
+Modified principles: None
+Added sections: Core Principles VI Accessibility-Driven UX, Accessibility Requirements
 Removed sections: None
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md (updated constitution references)
-  ✅ .specify/templates/spec-template.md (updated for security focus)
-  ✅ .specify/templates/tasks-template.md (updated for TDD and security)
-  ⚠️ .specify/templates/commands/*.md (pending review for agent-specific updates)
-Follow-up TODOs: Review and update command templates for ADFS and Trivy integration
+  ✅ .specify/templates/plan-template.md (added accessibility constitution gates)
+  ✅ .specify/templates/spec-template.md (added WCAG compliance checklist items)
+  ✅ .specify/templates/tasks-template.md (added automated accessibility tasks)
+  ⚠️ .specify/templates/commands (directory absent; align future command templates when created)
+Follow-up TODOs: None
 -->
 
 # Airlock Constitution
@@ -48,7 +48,15 @@ interfaces and abstractions required from the start. Each package manager
 implementation must be pluggable and independently testable. Architecture must 
 support seamless addition of new package managers without core changes.
 
-### VI. Container-First Deployment
+### VI. Accessibility-Driven UX (NON-NEGOTIABLE)
+**WCAG 2.1 AA COMPLIANCE**: Every user-facing experience MUST meet WCAG 2.1 AA 
+criteria at design, development, and deployment. All UX deliverables require 
+explicit accessibility acceptance criteria, inclusive copy, and semantic HTML. 
+Automated accessibility tests (e.g., axe, pa11y, Lighthouse) MUST run in CI 
+pipelines with zero critical violations permitted. Manual keyboard navigation 
+and screen reader audits MUST occur before release readiness sign-off.
+
+### VII. Container-First Deployment
 **CONTAINERIZED ENVIRONMENTS**: All components MUST be containerized with minimal 
 differences between dev and production environments. Docker files abstracted 
 for environment alignment. External dependencies require mock services in dev 
@@ -85,6 +93,19 @@ containers. Configuration management through environment variables and secrets.
 - Regular dependency updates with Trivy validation
 - Container image scanning with Trivy before deployment
 
+## Accessibility Requirements
+
+- WCAG 2.1 AA compliance is mandatory for all user-facing flows, including 
+  responsive breakpoints and embedded content
+- Design artifacts MUST document accessibility acceptance criteria and include 
+  color contrast validation, focus order, and assistive text
+- Automated accessibility test suites (axe, pa11y, Lighthouse) MUST execute in 
+  CI pipelines and block merges on violations above minor severity
+- Keyboard-only and screen reader smoke tests MUST be scripted and executed 
+  before release readiness
+- Accessibility regressions MUST trigger immediate remediation within the same 
+  sprint; deferrals require security and UX lead approval
+
 ## Technology Standards
 
 ### Python Development
@@ -101,6 +122,8 @@ containers. Configuration management through environment variables and secrets.
 - **Build Tool**: Vite (latest version)
 - **Testing**: Vitest with MSW for mocking
 - **UI Testing**: Storybook for component testing
+- **Accessibility Testing**: axe-core and Storybook Accessibility add-on with 
+  automated WCAG 2.1 AA rule enforcement in CI
 - **Code Quality**: ESLint + Prettier with strict rules
 - **Architecture**: Atomic Design Pattern (atoms, molecules, organisms, templates, pages)
 
@@ -119,6 +142,8 @@ containers. Configuration management through environment variables and secrets.
 - TDD compliance verification mandatory
 - SOLID principles adherence check
 - Security vulnerability scanning
+- Accessibility compliance verification including automated accessibility test 
+  results and manual keyboard/screen reader spot checks
 - Performance impact assessment
 
 ### Quality Gates
@@ -128,6 +153,8 @@ containers. Configuration management through environment variables and secrets.
 - Performance benchmarks met
 - Documentation updated for all public APIs
 - ADFS authentication integration validated
+- Automated accessibility tests pass with WCAG 2.1 AA conformance and no 
+  blockers across supported browsers
 
 ### Deployment Pipeline
 - Automated testing in containerized environments
@@ -136,6 +163,8 @@ containers. Configuration management through environment variables and secrets.
 - Environment-specific configuration validation
 - Monitoring and alerting for security events
 - ADFS integration validation in all environments
+- Automated accessibility regression tests executed on production build 
+  artifacts prior to release approvals
 
 ## Governance
 
@@ -152,7 +181,7 @@ explicit justification and approval from security team.
 
 **Compliance Monitoring**: All pull requests and code reviews MUST verify 
 constitution compliance. Automated tools will enforce TDD, security scanning, 
-and code quality standards. Manual review required for any complexity 
-justifications or security exceptions.
+code quality, and accessibility standards. Manual review required for any 
+complexity justifications, security exceptions, or accessibility deferrals.
 
-**Version**: 2.1.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-01-27
+**Version**: 2.2.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11

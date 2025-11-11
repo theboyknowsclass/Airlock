@@ -17,6 +17,7 @@
    → If security violations exist: ERROR "Security requirements MUST be met - no exceptions"
    → If SOLID/DRY violations exist: Document in Complexity Tracking with justification
    → If no justification possible: ERROR "Simplify approach first"
+   → If accessibility violations exist: ERROR "WCAG 2.1 AA compliance is mandatory - resolve accessibility gaps"
    → Update Progress Tracking: Initial Constitution Check
 5. Execute Phase 0 → research.md
    → If NEEDS CLARIFICATION remain: ERROR "Resolve unknowns"
@@ -71,6 +72,12 @@
 - [ ] React/TypeScript: ESLint, Prettier, Vitest, Storybook planned
 - [ ] Containerization strategy defined
 - [ ] Latest LTS versions specified for all dependencies
+- [ ] Accessibility testing approach defined (axe, pa11y, Lighthouse)
+
+### Accessibility Compliance (WCAG 2.1 AA)
+- [ ] Accessibility acceptance criteria documented for user flows
+- [ ] Automated accessibility testing integrated into test plan
+- [ ] Keyboard navigation and screen reader flows validated in design
 
 ## Project Structure
 
@@ -237,6 +244,7 @@ directories captured above]
 - [ ] Post-Design Constitution Check: PASS
 - [ ] All NEEDS CLARIFICATION resolved
 - [ ] Complexity deviations documented
+- [ ] Accessibility compliance review complete
 
 ---
-*Based on Constitution v2.0.0 - See `/memory/constitution.md`*
+*Based on Constitution v2.2.0 - See `/memory/constitution.md`*

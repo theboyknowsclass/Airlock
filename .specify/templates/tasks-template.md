@@ -17,6 +17,7 @@
    → Tests: contract tests, integration tests
    → Core: models, services, CLI commands
    → Integration: DB, middleware, logging
+   → Accessibility: automated audits, manual verification
    → Polish: unit tests, performance, docs
 4. Apply task rules:
    → Different files = mark [P] for parallel
@@ -56,39 +57,41 @@
 - [ ] T007 [P] Integration test auth flow in tests/integration/test_auth.py
 - [ ] T008 [P] Security test authentication bypass in tests/security/test_auth_bypass.py
 - [ ] T009 [P] Security test input validation in tests/security/test_input_validation.py
+- [ ] T010 [P] Automated accessibility regression test suite in tests/accessibility/axe.spec.ts
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T010 [P] User model in src/models/user.py
-- [ ] T011 [P] UserService CRUD in src/services/user_service.py
-- [ ] T012 [P] CLI --create-user in src/cli/user_commands.py
-- [ ] T013 POST /api/users endpoint
-- [ ] T014 GET /api/users/{id} endpoint
-- [ ] T015 Input validation with security checks
-- [ ] T016 Error handling and security logging
-- [ ] T017 Authentication middleware implementation
-- [ ] T018 Authorization service implementation
+- [ ] T011 [P] User model in src/models/user.py
+- [ ] T012 [P] UserService CRUD in src/services/user_service.py
+- [ ] T013 [P] CLI --create-user in src/cli/user_commands.py
+- [ ] T014 POST /api/users endpoint
+- [ ] T015 GET /api/users/{id} endpoint
+- [ ] T016 Input validation with security checks
+- [ ] T017 Error handling and security logging
+- [ ] T018 Authentication middleware implementation
+- [ ] T019 Authorization service implementation
 
 ## Phase 3.4: Integration
-- [ ] T019 Connect UserService to DB with encryption
-- [ ] T020 Security middleware integration
-- [ ] T021 Request/response logging with audit trails
-- [ ] T022 CORS and security headers
-- [ ] T023 Container configuration for dev/prod environments
+- [ ] T020 Connect UserService to DB with encryption
+- [ ] T021 Security middleware integration
+- [ ] T022 Request/response logging with audit trails
+- [ ] T023 CORS and security headers
+- [ ] T024 Container configuration for dev/prod environments
 
 ## Phase 3.5: Polish
-- [ ] T024 [P] Unit tests for validation in tests/unit/test_validation.py
-- [ ] T025 Performance tests (<200ms)
-- [ ] T026 [P] Update docs/api.md
-- [ ] T027 Remove duplication (DRY principle)
-- [ ] T028 Security vulnerability scanning
-- [ ] T029 Run manual-testing.md
+- [ ] T025 [P] Unit tests for validation in tests/unit/test_validation.py
+- [ ] T026 Performance tests (<200ms)
+- [ ] T027 [P] Update docs/api.md
+- [ ] T028 Remove duplication (DRY principle)
+- [ ] T029 Security vulnerability scanning
+- [ ] T030 Run manual-testing.md
+- [ ] T031 Manual accessibility audit (keyboard navigation + screen reader smoke tests)
 
 ## Dependencies
-- Tests (T004-T009) before implementation (T010-T018)
-- T010 blocks T011, T019
-- T017 blocks T020
-- T018 blocks T020
-- Implementation before polish (T024-T029)
+- Tests (T004-T010) before implementation (T011-T019)
+- T011 blocks T012, T020
+- T018 blocks T021
+- T019 blocks T021
+- Implementation before polish (T025-T031)
 
 ## Parallel Example
 ```
@@ -135,6 +138,7 @@ Task: "Security test input validation in tests/security/test_input_validation.py
 - [ ] All entities have model tasks
 - [ ] All tests come before implementation (TDD compliance)
 - [ ] Security tests included for all security-critical components
+- [ ] Accessibility tests (automated + manual) included and scheduled before release
 - [ ] Parallel tasks truly independent
 - [ ] Each task specifies exact file path
 - [ ] No task modifies same file as another [P] task
