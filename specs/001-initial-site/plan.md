@@ -89,7 +89,8 @@ Deliver a public initial site that renders an accessible loading placeholder in 
 - Security: `/api/version` and the initial site terminate exclusively over HTTPS (behind TLS), enforce rate limiting with observable logs, and remain read-only.  
 - SOLID/DRY: Frontend separates view (MUI components) from data hooks (TanStack Query) and utility logging; backend isolates version provider, API handler, and telemetry.  
 - Accessibility: Loading placeholder announced via `aria-live="polite"`, error view traps and releases focus, and automated axe/Lighthouse checks run in CI.  
-- Minimalism: Router, form, and global state libs are not instantiated to keep footprint small; deviations documented here per constitution v10.1.0.
+- Minimalism: Router, form, and global state libs are not instantiated to keep footprint small; deviations documented here per constitution v10.1.0.  
+- Tooling: Storybook documents UI components for accessibility review; performance smoke script (`scripts/perf/check-version-latency.ts`) guards the 250 ms latency target.
 
 ## Project Structure
 
@@ -167,6 +168,7 @@ contracts/
 
 4. **Extract test scenarios** from user stories:
    - Captured Gherkin scenarios in `quickstart.md` for success and timeout failure paths to drive cucumber-js and pytest-bdd suites.
+   - Document core UI states (loading, success, error) in Storybook to aid accessibility verification and design review.
 
 5. **Update agent file incrementally** (O(1) operation):
    - Executed `.specify/scripts/powershell/update-agent-context.ps1 -AgentType cursor` to record the TanStack/MUI stack alignment.
@@ -179,7 +181,7 @@ contracts/
 **Task Generation Strategy**:
 - Base tasks on `tasks-template.md`, deriving work items from contracts, data model, and BDD scenarios.
 - Ensure cucumber-js and pytest-bdd scenarios are authored first and fail before implementation.
-- Create contract validation tasks for `GET /api/version`, TanStack Query hook construction, MUI components, telemetry logging, HTTPS enforcement, and rate limiting.
+- Create contract validation tasks for `GET /api/version`, TanStack Query hook construction, MUI components, telemetry logging, HTTPS enforcement, rate limiting, Storybook stories, and performance smoke scripting.
 - Schedule accessibility automation (axe, Lighthouse) and keyboard audit tasks.
 
 **Ordering Strategy**:
@@ -187,7 +189,7 @@ contracts/
 - Backend logging, timeout enforcement, and security controls precede frontend rendering to guarantee observable failures.
 - Mark naturally parallel tasks `[P]` (e.g., frontend and backend unit test scaffolds).
 
-**Estimated Output**: 20-24 numbered tasks balancing BDD, contracts, implementation, telemetry, and accessibility checks.
+**Estimated Output**: 22-26 numbered tasks balancing BDD, contracts, implementation, telemetry, accessibility checks, and performance validation.
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan.
 

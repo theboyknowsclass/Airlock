@@ -94,43 +94,48 @@
     - Paths: `frontend/tests/unit/`, `frontend/tests/accessibility/`  
     - Dependencies: T011-T014  
 
-### Integration & End-to-End Validation
-18. **T016** – Run and fix cucumber-js suite  
-    - Execute frontend BDD tests, implement missing step logic until they pass.  
-    - Dependencies: T011-T015  
+18. **T015a [P]** – Create Storybook stories for UI components  
+    - Document `ServerVersionPlaceholder`, `ServerVersionBadge`, and the error view in Storybook with accessibility notes and design tokens.  
+    - Paths: `frontend/.storybook/`, `frontend/src/components/**/__stories__`  
+    - Dependencies: T012, T013  
 
-19. **T017** – Run and fix pytest-bdd suite  
+### Integration & End-to-End Validation
+19. **T016** – Run and fix cucumber-js suite  
+    - Execute frontend BDD tests, implement missing step logic until they pass.  
+    - Dependencies: T011-T015a  
+
+20. **T017** – Run and fix pytest-bdd suite  
     - Execute backend BDD tests, adjust endpoint/service to satisfy scenarios.  
     - Dependencies: T007-T010  
 
-20. **T018** – Execute contract and integration tests  
+21. **T018** – Execute contract and integration tests  
     - Run contract tests plus combined frontend-backend smoke tests ensuring 1-second timeout path triggers proper error view.  
     - Dependencies: T016, T017  
 
 ### Observability & Accessibility Polish
-21. **T019 [P]** – Configure monitoring hooks for log shipping  
+22. **T019 [P]** – Configure monitoring hooks for log shipping  
     - Ensure application logs integrate with deployment pipeline (structured stdout, optional exporter hook).  
     - Dependencies: T009, T018  
 
-22. **T020 [P]** – Run automated accessibility audits  
+23. **T020 [P]** – Run automated accessibility audits  
     - Execute axe, pa11y, Lighthouse per `quickstart.md`; remediate violations.  
     - Dependencies: T015, T018  
 
-23. **T020a [P]** – Validate /api/version performance target  
-    - Execute synthetic latency checks or load tests to confirm p95 ≤ 250 ms and document results.  
-    - Paths: `backend/tests/performance/test_version_endpoint.py`, tooling scripts  
+24. **T020a [P]** – Build and execute performance smoke script  
+    - Implement `scripts/perf/check-version-latency.ts` (or equivalent) to measure `/api/version` latency (p95 ≤ 250 ms) and capture results for docs/CI.  
+    - Paths: `scripts/perf/check-version-latency.ts`, `backend/tests/performance/test_version_endpoint.py`  
     - Dependencies: T018  
 
-24. **T021** – Manual keyboard and screen reader validation  
+25. **T021** – Manual keyboard and screen reader validation  
     - Follow quickstart manual audits; document results and fixes.  
     - Dependencies: T020, T020a  
 
 ### Finalization
-25. **T022** – Update documentation and quickstart with implementation notes  
-    - Record any deviations, update README/quickstart with commands and known limitations, including HTTPS/rate limiting and performance metrics.  
+26. **T022** – Update documentation and quickstart with implementation notes  
+    - Record any deviations, update README/quickstart with commands and known limitations, including HTTPS/rate limiting, Storybook coverage, and performance metrics.  
     - Dependencies: T019-T021  
 
-26. **T023** – Final verification and merge readiness review  
+27. **T023** – Final verification and merge readiness review  
     - Confirm BDD, unit, contract, security, performance, and accessibility validations pass; verify structured logs and rate limiting telemetry; prepare PR checklist.  
     - Dependencies: T022  
 

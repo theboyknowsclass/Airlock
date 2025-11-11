@@ -29,3 +29,16 @@ Decision: Adopt TanStack Query with Axios for the version fetch while omitting T
 Rationale: Aligns with the preferred React stack for server state management and HTTP calls; routing, form handling, and global client state libraries are not required for a single static view with no inputs.  
 Alternatives considered: Raw `fetch` without caching (less resilient to retries), introducing routing/state libraries without need (violates minimalism).
 
+Decision: Capture UI states in Storybook for accessibility review.  
+Rationale: Provides a living documentation surface, integrates with constitution-mandated accessibility tooling, and eases regression checks.  
+Alternatives considered: Relying solely on manual screenshots (high maintenance), separate design docs (drift risk).
+
+Decision: Create a reusable performance smoke script (`scripts/perf/check-version-latency.ts`) to assert the 250 ms latency target.  
+Rationale: Automates the constitution’s performance goal, enables repeatable CI checks, and documents methodology.  
+Alternatives considered: Ad-hoc local testing (inconsistent), relying only on production monitoring (slow feedback).
+
+Decision: Enforce a token-bucket rate limiter (e.g., `slowapi` middleware) on `/api/version`, allowing up to 60 requests per minute per IP with a burst capacity of 10.  
+Rationale: Aligns with the Security-First principle by throttling abusive traffic while accommodating legitimate refresh bursts; integrates cleanly with FastAPI and existing structured logging.  
+Implementation notes: Middleware inspects client IP, returns HTTP 429 responses with `Retry-After`, and logs blocked attempts through the telemetry pipeline; TLS termination ensures only HTTPS traffic reaches the limiter.  
+Alternatives considered: Fixed-window limiting (allows burst spikes at window edges); no rate limit (violates security mandate and risks abuse).
+

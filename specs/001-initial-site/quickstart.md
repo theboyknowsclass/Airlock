@@ -54,6 +54,20 @@ pnpm test:a11y
 pnpm test:keyboard
 ```
 
+## Storybook Component Review
+```bash
+# Launch Storybook with accessibility addons
+pnpm storybook
+```
+Use Storybook to document `ServerVersionPlaceholder`, `ServerVersionBadge`, and the error view; verify WCAG notes and design tokens before merging UI changes.
+
+## Performance Smoke Test
+```bash
+# Measure /api/version latency (p95 ≤ 250 ms)
+pnpm ts-node scripts/perf/check-version-latency.ts
+```
+Ensure results are captured for CI and referenced in documentation.
+
 ## Fast Feedback Loop
 ```bash
 # Frontend dev server with strict type-checking
