@@ -1,13 +1,13 @@
 <!--
 Sync Impact Report:
-Version change: 7.0.0 → 8.0.0 (MAJOR: Replaced TDD mandate with BDD using Cucumber-style language)
-Modified principles: Core Principles I Test-Driven Development (NON-NEGOTIABLE) → Core Principles I Behavior-Driven Development (NON-NEGOTIABLE)
+Version change: 9.0.0 → 10.0.0 (MAJOR: Removed governance mandate added in previous version)
+Modified principles: None
 Added sections: None
-Removed sections: None
+Removed sections: Governance
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md (updated for BDD constitution checks)
+  ✅ .specify/templates/plan-template.md (updated constitution reference)
   ✅ .specify/templates/spec-template.md (no changes needed)
-  ✅ .specify/templates/tasks-template.md (updated for BDD workflow)
+  ✅ .specify/templates/tasks-template.md (no changes needed)
   ⚠️ .specify/templates/commands (directory absent; align future command templates when created)
 Follow-up TODOs: None
 -->
@@ -43,14 +43,7 @@ library. Libraries MUST be independently testable, documented, and have clear
 purpose. No organizational-only libraries. Each library exposes functionality 
 via CLI interface with text in/out protocol (stdin/args → stdout, errors → stderr).
 
-### V. Package Manager Extensibility
-**NPM-FIRST WITH EXTENSIBILITY**: Initial implementation MUST focus on npm package 
-manager with extensible architecture for future NuGet and pip support. Common 
-interfaces and abstractions required from the start. Each package manager 
-implementation must be pluggable and independently testable. Architecture must 
-support seamless addition of new package managers without core changes.
-
-### VI. Accessibility-Driven UX (NON-NEGOTIABLE)
+### V. Accessibility-Driven UX (NON-NEGOTIABLE)
 **WCAG 2.1 AA COMPLIANCE**: Every user-facing experience MUST meet WCAG 2.1 AA 
 criteria at design, development, and deployment. All UX deliverables require 
 explicit accessibility acceptance criteria, inclusive copy, and semantic HTML. 
@@ -58,13 +51,13 @@ Automated accessibility tests (e.g., axe, pa11y, Lighthouse) MUST run in CI
 pipelines with zero critical violations permitted. Manual keyboard navigation 
 and screen reader audits MUST occur before release readiness sign-off.
 
-### VII. Container-First Deployment
+### VI. Container-First Deployment
 **CONTAINERIZED ENVIRONMENTS**: All components MUST be containerized with minimal 
 differences between dev and production environments. Docker files abstracted 
 for environment alignment. External dependencies require mock services in dev 
 containers. Configuration management through environment variables and secrets.
 
-### VIII. Minimal Implementation & Clarification-First
+### VII. Minimal Implementation & Clarification-First
 **LEAN DELIVERY**: Always prefer the smallest viable change set. Fewer files, 
 fewer lines of code, and reuse of existing components are mandatory goals. 
 When ambiguity exists, stop and clarify with stakeholders instead of guessing 
@@ -116,14 +109,6 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 - **Code Quality**: ESLint + Prettier with strict rules
 - **Architecture**: Atomic Design Pattern (atoms, molecules, organisms, templates, pages)
 
-### Package Management
-- **npm (Primary)**: Latest LTS version with security audit enabled, initial focus
-- **NuGet (Future)**: Latest stable version with Trivy vulnerability scanning
-- **Python/pip (Future)**: pip with Trivy integration for security scanning
-- **Dependency Management**: All dependencies pinned to specific versions
-- **Security**: Regular dependency updates with Trivy automated security scanning
-- **Extensibility**: Architecture must support seamless addition of new package managers
-
 ## Development Workflow
 
 ### Code Review Process
@@ -146,4 +131,4 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 - Automated accessibility tests pass with WCAG 2.1 AA conformance and no 
   blockers across supported browsers
 
-**Version**: 8.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11
+**Version**: 10.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11
