@@ -38,7 +38,7 @@ vulnerabilities.
 | **ApplicationVersion** | A build version identifier from a build system. Tracks the resolved package set used, and a `released` flag. |
 | **WatchListEntry** | Links a released ApplicationVersion's packages to ongoing vulnerability monitoring. |
 | **VulnerabilityAlert** | A new disclosure matching a watched package. Always notifies; does not auto-revoke. |
-| **LicensePolicy** | The org-wide list of SPDX license identifiers classified `approved` or `banned`, maintained by Approvers. Checked independently of security scanning. |
+| **LicensePolicy** | The org-wide list of licenses classified `approved`, `banned`, or `needs_approval`, maintained by Approvers. Checked independently of security scanning. Any license not already present in the list — including one that doesn't resolve to a clean SPDX id (dual-license expressions, free-text/"see LICENSE.txt" declarations) — defaults to `needs_approval` rather than blocking or erroring. |
 | **AuditLogEntry** | Records every manual decision — actor, action, target, rationale, timestamp. |
 
 ## 4. Request Lifecycle
@@ -62,7 +62,10 @@ vulnerabilities.
      compliance is treated as a binary policy fact, not a risk judgment call.
      Canonical store is updated to `rejected` per the normal rejection rule
      (§4 step 9).
-   - Approved or unreviewed license → proceeds to the scan pipeline.
+   - Approved, or `needs_approval` (including licenses not yet in the policy
+     list at all) → proceeds to the scan pipeline. [OPEN — see §10: whether
+     `needs_approval` should instead hard-block like a banned license, and
+     how a license actually gets classified.]
 5. **Scan pipeline** runs for unknown packages that passed the license gate:
    integrity/hash verification, vulnerability scanning, malware/behavior
    scanning, and scoring (§7). License status is also carried forward as its
@@ -164,7 +167,10 @@ rather than another lock-file parser plugin.
   push subscription is still open.
 - **Package storage backend** — private registry (Verdaccio/Artifactory-style)
   vs. blob storage (S3) with a custom resolution layer.
-- **Unreviewed license handling** — a license that's neither approved nor
-  banned (not yet classified) currently just proceeds to scan/review with an
-  "unreviewed" license score. Is that right, or should an unreviewed license
-  also hard-block until an Approver classifies it into the policy list?
+- **`needs_approval` license handling** — currently proceeds to scan/review
+  flagged, same as any other package. Should it instead hard-block like a
+  banned license until an Approver explicitly classifies it?
+- **License classification flow** — is classifying a license (moving it to
+  approved/banned in `LicensePolicy`) a standalone admin action independent
+  of any package, or does it happen as a byproduct of an Approver reviewing
+  a package that uses it?
