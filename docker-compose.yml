@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: airlock
+      POSTGRES_PASSWORD: airlock
+      POSTGRES_DB: airlock
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airlock"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: airlock
+      RABBITMQ_DEFAULT_PASS: airlock
+    ports:
+      - "5672:5672"
+      - "15672:15672"   # management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: ./migrations
+    environment:
+      DATABASE_URL: postgresql+psycopg://airlock:airlock@postgres:5432/airlock
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    build: ./services/api
+    environment:
+      AIRLOCK_DATABASE_URL: postgresql://airlock:airlock@postgres:5432/airlock
+      AIRLOCK_RABBITMQ_URL: amqp://airlock:airlock@rabbitmq:5672/
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    build: ./services/worker
+    environment:
+      AIRLOCK_DATABASE_URL: postgresql://airlock:airlock@postgres:5432/airlock
+      AIRLOCK_RABBITMQ_URL: amqp://airlock:airlock@rabbitmq:5672/
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    # Horizontal scaling proof-of-concept: `docker compose up --scale worker=3`
+
+volumes:
+  pgdata:
