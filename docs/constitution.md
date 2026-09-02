@@ -1,14 +1,16 @@
 <!--
 Sync Impact Report:
-Version change: 9.0.0 → 10.0.0 (MAJOR: Removed governance mandate added in previous version)
-Modified principles: None
-Added sections: None
-Removed sections: Governance
-Templates requiring updates:
-  ✅ .specify/templates/plan-template.md (updated constitution reference)
-  ✅ .specify/templates/spec-template.md (no changes needed)
-  ✅ .specify/templates/tasks-template.md (no changes needed)
-  ⚠️ .specify/templates/commands (directory absent; align future command templates when created)
+Version change: 10.0.0 → 11.0.0 (MAJOR: replaced ADFS-specific auth mandate with
+  provider-agnostic OIDC requirement; added new NON-NEGOTIABLE principle governing
+  queue-backed, restart-safe job processing)
+Modified principles: None renamed
+Added principles: VIII. Scalable, Resilient Job Processing (NON-NEGOTIABLE)
+Added sections: Backend Services (Python) under Technology Standards
+Removed sections: None
+Modified sections: Authentication & Authorization (ADFS → OIDC), Quality Gates
+  (ADFS validation → OIDC validation)
+Templates requiring updates: N/A (spec-kit scaffolding removed from repo; this
+  document is now the sole source of project standards)
 Follow-up TODOs: None
 -->
 
@@ -64,16 +66,32 @@ When ambiguity exists, stop and clarify with stakeholders instead of guessing
 or over-specifying. Every implementation MUST demonstrate why additional files 
 or abstractions are unavoidable. Speculative extensibility is prohibited.
 
+### VIII. Scalable, Resilient Job Processing (NON-NEGOTIABLE)
+**QUEUE-BACKED WORKERS**: Per-item processing that fans out from a request (e.g., 
+one job per requested package) MUST be dispatched through a durable message 
+queue (RabbitMQ) rather than handled synchronously in-request. Workers MUST be 
+stateless and horizontally scalable; job identity, status, and retry state MUST 
+persist in PostgreSQL rather than in-memory, so in-flight work survives worker 
+or system restarts. Jobs MUST be idempotent and acknowledged only after durable 
+completion; failed jobs retry a bounded number of times before routing to a 
+dead-letter queue for triage. The queue message schema and the job-state schema 
+constitute the entire worker contract — workers MUST NOT depend on shared 
+in-process code across language boundaries, so implementations in different 
+languages (e.g., Python, Go) remain interchangeable and can be benchmarked 
+against one another on the same queue.
+
 ## Security Requirements
 
 ### Authentication & Authorization
-- **ADFS Integration**: Active Directory Federation Services (ADFS) is the primary 
-  authentication mechanism for all user access (includes MFA capabilities)
-- **OAuth 2 Extensibility**: Authorization architecture MUST be extensible to support 
-  any OAuth 2 provider while maintaining ADFS as the initial implementation
+- **OIDC Integration**: OpenID Connect (OIDC) is the primary authentication 
+  mechanism for all user access, compatible with any standards-compliant OIDC 
+  identity provider (MFA support depends on the configured IdP)
+- **Provider Agnostic**: Authorization architecture MUST NOT hard-code assumptions 
+  about a specific identity provider; IdP configuration (issuer, client, scopes) 
+  is environment-driven
 - Role-based access control with principle of least privilege
-- Session management with secure token handling via ADFS/OAuth 2 providers
-- API authentication via ADFS-issued or OAuth 2 JWT tokens with short expiration times
+- Session management with secure token handling via the configured OIDC provider
+- API authentication via OIDC-issued JWT access tokens with short expiration times
 
 ## Accessibility Requirements
 
@@ -89,6 +107,18 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
   sprint; deferrals require security and UX lead approval
 
 ## Technology Standards
+
+### Backend Services (Python)
+- **API Layer**: FastAPI (async) for request handling and job enqueueing
+- **Workers**: Python consumers of RabbitMQ queues as the initial implementation; 
+  MUST honor the language-agnostic worker contract defined in Principle VIII so 
+  alternative-language workers (e.g., Go) can run interchangeably and be 
+  benchmarked side by side without protocol changes
+- **Message Queue**: RabbitMQ with durable queues, manual acknowledgement, and 
+  dead-letter queues for exhausted retries
+- **Database**: PostgreSQL for job state and application data
+- **Job Messages**: plain, versioned JSON schemas on the queue — no 
+  language-specific serialization (e.g., no pickling)
 
 ### Python Development
 - **Language**: Python 3.11+ (latest LTS)
@@ -119,6 +149,8 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 - Accessibility compliance verification including automated accessibility test 
   results and manual keyboard/screen reader spot checks
 - Performance impact assessment
+- Worker changes reviewed for adherence to the queue/job-state contract 
+  (Principle VIII) — no in-process coupling between API and worker code
 
 ### Quality Gates
 - 100% test coverage for security-critical components
@@ -127,8 +159,10 @@ or abstractions are unavoidable. Speculative extensibility is prohibited.
 - All linting and type checking passes
 - Performance benchmarks met
 - Documentation updated for all public APIs
-- ADFS authentication integration validated
+- OIDC authentication integration validated
 - Automated accessibility tests pass with WCAG 2.1 AA conformance and no 
   blockers across supported browsers
+- Job processing validated for restart-safety: in-flight jobs survive a worker 
+  or broker restart with no duplicate side effects and no lost work
 
-**Version**: 10.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-11-11
+**Version**: 11.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2026-09-02
