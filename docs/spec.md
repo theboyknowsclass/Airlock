@@ -38,6 +38,7 @@ vulnerabilities.
 | **ApplicationVersion** | A build version identifier from a build system. Tracks the resolved package set used, and a `released` flag. |
 | **WatchListEntry** | Links a released ApplicationVersion's packages to ongoing vulnerability monitoring. |
 | **VulnerabilityAlert** | A new disclosure matching a watched package. Always notifies; does not auto-revoke. |
+| **LicensePolicy** | The org-wide list of SPDX license identifiers classified `approved` or `banned`, maintained by Approvers. Checked independently of security scanning. |
 | **AuditLogEntry** | Records every manual decision — actor, action, target, rationale, timestamp. |
 
 ## 4. Request Lifecycle
@@ -55,34 +56,48 @@ vulnerabilities.
      scan. This fails the whole request (see below).
    - Unknown → a ScanJob is enqueued (or joined, if one is already in flight
      for that exact tuple).
-4. **Scan pipeline** runs for unknown packages: integrity/hash verification,
-   vulnerability scanning, malware/behavior scanning, and scoring (§7).
-5. **Resolution**: [OPEN — see §10] whether a scan outcome can auto-approve,
-   or every unknown package always lands in front of an Approver.
-6. **Manual review** (when required): a role-gated Approver sees the scan
-   findings/score and approves or rejects, with rationale recorded to the
-   audit log.
-7. **On approval**: the package is downloaded and stored in the secure
+4. **License check** runs first, against the `LicensePolicy` list:
+   - Banned license → **hard auto-reject**, no human review. This is the one
+     exception to "every unknown package requires human sign-off" — license
+     compliance is treated as a binary policy fact, not a risk judgment call.
+     Canonical store is updated to `rejected` per the normal rejection rule
+     (§4 step 9).
+   - Approved or unreviewed license → proceeds to the scan pipeline.
+5. **Scan pipeline** runs for unknown packages that passed the license gate:
+   integrity/hash verification, vulnerability scanning, malware/behavior
+   scanning, and scoring (§7). License status is also carried forward as its
+   own score, shown separately from the security severity score (§7).
+6. **Resolution**: every package that reaches this point always lands in
+   front of an Approver — a clean scan never auto-approves. The scan
+   pipeline's findings/scores are input to that decision, not a substitute
+   for it.
+7. **Manual review**: a role-gated Approver sees the security severity score
+   and the license score side by side, and approves or rejects, with
+   rationale recorded to the audit log. Given transitive-dependency scope,
+   review volume can be high; the review UX (queue prioritized by risk
+   score, batch actions on low-risk packages) is an open design point for
+   later.
+8. **On approval**: the package is downloaded and stored in the secure
    internal repo; the canonical store is updated to `approved`.
-8. **On rejection**: the canonical store is updated to `rejected`
+9. **On rejection**: the canonical store is updated to `rejected`
    (permanent — no appeal; a rejected (ecosystem, name, version) can never be
    resubmitted, only a different version can). Rejection is final.
-9. **Request completion**: once every requested package has resolved, the
-   request is finalized:
-   - All approved → request `approved`.
-   - Any rejected → request `rejected` (whole-request failure — a single bad
-     transitive dependency fails the build's request).
-   - If tied to an `application_version`, the resolved package set is logged
-     against it.
-10. **Poll**: the build system polls `GET /requests/{id}` until status is no
+10. **Request completion**: once every requested package has resolved, the
+    request is finalized:
+    - All approved → request `approved`.
+    - Any rejected → request `rejected` (whole-request failure — a single bad
+      transitive dependency fails the build's request).
+    - If tied to an `application_version`, the resolved package set is logged
+      against it.
+11. **Poll**: the build system polls `GET /requests/{id}` until status is no
     longer `pending`.
 
 ## 5. Release & Watch List
 
 - `POST /application-versions/{id}/release` marks a version released.
 - On release, every package used by that version becomes a `WatchListEntry`,
-  subscribed to ongoing vulnerability monitoring (feed source TBD — OSV/NVD/
-  GitHub Advisories).
+  subscribed to ongoing vulnerability monitoring against multiple combined
+  feed sources (OSV, NVD, GitHub Advisories, cross-referenced/deduped).
 - When a new disclosure matches a watched package, a `VulnerabilityAlert` is
   raised and the owning team/Approver is **always notified**.
 - Revocation is **not automatic**. An Approver may manually revoke the
@@ -111,8 +126,16 @@ Every unknown package goes through, at minimum:
 - **Vulnerability scanning** — known-CVE lookup against the package+version.
 - **Malware/behavior scanning** — detection aimed at worm-style supply-chain
   attacks (suspicious install scripts, exfiltration patterns, etc).
-- **Scoring** — [OPEN — see §10] aggregation method and any auto-approve
-  threshold are not yet defined.
+- **License check** — the package's declared license(s) checked against
+  `LicensePolicy`. Banned → hard auto-reject before this pipeline even runs
+  (§4, step 4). Approved or unreviewed → produces its own **license score**,
+  tracked and shown separately from security severity (not blended in).
+- **Security scoring** — severity-driven (worst-of): the package's overall
+  security severity is the single worst finding across integrity,
+  vulnerability, and malware/behavior checks (e.g. any known CVE at High →
+  the package shows as High regardless of other checks passing clean). Used
+  to prioritize the review queue; never auto-approves — every package that
+  reaches this stage requires human sign-off (§4, step 6).
 
 ## 8. Ecosystem Support
 
@@ -128,20 +151,20 @@ rather than another lock-file parser plugin.
 - Approve/reject actions require the `approver` role (via OIDC claims/RBAC).
 - Every manual decision (approve, reject, revoke) is written to the audit
   log with actor, timestamp, and rationale.
+- Changes to `LicensePolicy` (adding/removing an approved or banned license)
+  are audited the same way — actor, timestamp, rationale.
 - Scoring policy changes are **not retroactive** — packages already approved
   under a prior policy are grandfathered; only new/future scans use the new
   policy.
 
 ## 10. Open Questions
 
-- **Auto-approve threshold**: does a clean scan (integrity pass, no known
-  CVEs, malware score below some bar) auto-approve, or does every
-  previously-unknown package require a human Approver regardless of score?
-- **Scoring model**: single scanner output, or an aggregate across multiple
-  sources (OSV + malware heuristic + integrity) — and how are they combined
-  into one score?
-- **Vulnerability feed source(s)** for the watch list — which feed(s) to
-  poll/subscribe to (OSV, NVD, GitHub Advisories, ecosystem-specific
-  advisories), and polling vs. push.
+- **Vulnerability feed mechanics** for the watch list — sources are decided
+  (OSV + NVD + GitHub Advisories, cross-referenced/deduped); polling vs.
+  push subscription is still open.
 - **Package storage backend** — private registry (Verdaccio/Artifactory-style)
   vs. blob storage (S3) with a custom resolution layer.
+- **Unreviewed license handling** — a license that's neither approved nor
+  banned (not yet classified) currently just proceeds to scan/review with an
+  "unreviewed" license score. Is that right, or should an unreviewed license
+  also hard-block until an Approver classifies it into the policy list?
