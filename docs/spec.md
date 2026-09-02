@@ -75,9 +75,11 @@ vulnerabilities.
    scanner tooling itself errors/times out (not a finding, but the tool
    breaking), the job retries per the queue's bounded-retry policy
    (constitution Principle VIII) and the request stays `pending`. If retries
-   are exhausted, the job lands in the dead-letter queue for ops triage
-   rather than proceeding to review with incomplete data; the request
-   remains blocked until it's requeued and completes successfully.
+   are exhausted, the job lands in the dead-letter queue and **raises an
+   explicit error/alert** (through the same notification layer as §5) so
+   ops/admins know a scan broke and act on it, rather than the request
+   silently sitting blocked — it proceeds to review only once the job is
+   requeued and completes successfully.
 6. **Resolution**: every package that reaches this point always lands in
    front of an Approver — a clean scan never auto-approves. The scan
    pipeline's findings/scores are input to that decision, not a substitute
