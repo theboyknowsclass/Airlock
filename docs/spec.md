@@ -275,15 +275,34 @@ stateDiagram-v2
 `unclassified` is a temporary state, resolved as a byproduct of the first
 package review that hits it. `needs_approval` is a deliberate, standing
 policy decision — it is a *destination*, not a waypoint, and does not
-resolve on its own just because one package under it was reviewed.
+resolve on its own just because one package under it was reviewed. Once
+classified, an Approver can reclassify a license between `approved`,
+`banned`, and `needs_approval` via a standalone action at any time
+(audited, §9).
 
 ```mermaid
 stateDiagram-v2
     [*] --> unclassified
-    unclassified --> approved: Approver classifies (during package review)
-    unclassified --> banned: Approver classifies (during package review)
-    unclassified --> needs_approval: Approver classifies (during package review)
+    unclassified --> approved: classify (during package review)
+    unclassified --> banned: classify (during package review)
+    unclassified --> needs_approval: classify (during package review)
+    approved --> banned: reclassify (standalone action)
+    approved --> needs_approval: reclassify (standalone action)
+    banned --> approved: reclassify (standalone action)
+    banned --> needs_approval: reclassify (standalone action)
+    needs_approval --> approved: reclassify (standalone action)
+    needs_approval --> banned: reclassify (standalone action)
 ```
+
+Reclassification is **forward-only**, same as scoring policy (§9): it never
+retroactively touches packages already resolved under the prior
+classification. A package auto-rejected while its license was `banned`
+stays rejected — "rejection is final" holds even here, the fix is a new
+package version, not a re-evaluation. The one place reclassification does
+act on existing state: if a license moving to `banned` affects packages
+that are already `approved` and currently watched (used by a released,
+non-retired `ApplicationVersion`), that raises a notification through the
+same channel as a `VulnerabilityAlert` (§5) — never an automatic revoke.
 
 `retired` is reachable only from `released` (as drawn above) — a `building`
 version that's abandoned simply stays `building`, unused; no separate
@@ -291,7 +310,5 @@ retirement/archival transition for it.
 
 ## 11. Open Questions
 
-- **License reclassification** — once a license is set `approved`, `banned`,
-  or `needs_approval` (§10), can an Approver later change it via a
-  standalone action (e.g. legal guidance changes), or is a classification
-  final once set?
+*(none currently — all gaps identified so far have been resolved into the
+sections above)*
