@@ -90,8 +90,9 @@ vulnerabilities.
    review volume can be high; the review UX (queue prioritized by risk
    score, batch actions on low-risk packages) is an open design point for
    later.
-8. **On approval**: the package is downloaded and stored in the secure
-   internal repo; the canonical store is updated to `approved`.
+8. **On approval**: the package is downloaded and pushed into the
+   corresponding format-specific hosted repository in Nexus (§8a); the
+   canonical store is updated to `approved`.
 9. **On rejection**: the canonical store is updated to `rejected`
    (permanent — no appeal; a rejected (ecosystem, name, version) can never be
    resubmitted, only a different version can). Rejection is final.
@@ -110,7 +111,9 @@ vulnerabilities.
 - `POST /application-versions/{id}/release` marks a version released.
 - On release, every package used by that version becomes a `WatchListEntry`,
   subscribed to ongoing vulnerability monitoring against multiple combined
-  feed sources (OSV, NVD, GitHub Advisories, cross-referenced/deduped).
+  feed sources (OSV, NVD, GitHub Advisories, cross-referenced/deduped). All
+  three are polled on a schedule (uniform mechanism regardless of what each
+  feed natively supports) and diffed against the watched-package set.
 - When a new disclosure matches a watched package, a `VulnerabilityAlert` is
   raised and the affected `Application`'s owning team is **always notified**
   through a pluggable notification layer: in-app is the baseline channel for
@@ -165,6 +168,19 @@ Every unknown package goes through, at minimum:
 **Docker is architecturally different** — an image/layer artifact, not a
 lock file of (name, version) pairs — and will need its own ingestion path
 rather than another lock-file parser plugin.
+
+### 8a. Package Storage
+
+Approved packages are pushed into **Nexus Repository**, one instance with a
+separate format-specific hosted repository per ecosystem (npm-hosted,
+PyPI-hosted, NuGet-hosted, later Maven-hosted). This gives one deployment
+and admin surface, and build tooling can point at each hosted repo natively
+— but it is **not** one uniform API: Nexus's component-upload REST endpoint
+takes different payload fields per format, so the worker's "publish to
+Nexus" step needs a thin per-ecosystem adapter, same shape as the lock-file
+parser being per-ecosystem (§8). Docker doesn't use this REST API at all —
+a Docker-hosted repo in Nexus is pushed to via the standard Docker registry
+v2 protocol, consistent with Docker needing its own ingestion path above.
 
 ## 9. Authorization & Audit
 
@@ -252,11 +268,6 @@ can later be reclassified (e.g. legal guidance changes) or is final once set.
 
 ## 11. Open Questions
 
-- **Vulnerability feed mechanics** for the watch list — sources are decided
-  (OSV + NVD + GitHub Advisories, cross-referenced/deduped); polling vs.
-  push subscription is still open.
-- **Package storage backend** — private registry (Verdaccio/Artifactory-style)
-  vs. blob storage (S3) with a custom resolution layer.
 - **`needs_approval` license handling** — currently proceeds to scan/review
   flagged, same as any other package. Should it instead hard-block like a
   banned license until an Approver explicitly classifies it?
