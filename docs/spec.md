@@ -36,7 +36,7 @@ vulnerabilities.
 | **Package** (canonical store) | The org-wide record of a (ecosystem, name, version)'s approval state: `approved`, `rejected`, or `revoked`. This is the source of truth checked before any scan is triggered. |
 | **ScanJob** | One scan/score run for a (ecosystem, name, version) not yet in the canonical store. Deduplicated — concurrent requests referencing the same package share one job. |
 | **Application** | A registered application (name, owning team, repo). Parent of its `ApplicationVersion`s — gives watch-list notifications and cross-version reporting an owner to attach to. |
-| **ApplicationVersion** | A build version under an `Application`, identified by the build system. Tracks the resolved package set used, and `released`/`retired` flags. |
+| **ApplicationVersion** | A build version under an `Application`, identified by the build system. A monorepo/multi-ecosystem build submits one `PackageRequest` per lock file (§8), all tagged to the same `ApplicationVersion` — its resolved package set is the union across every request tied to it. Tracks `released`/`retired` flags. |
 | **WatchListEntry** | Links a released ApplicationVersion's packages to ongoing vulnerability monitoring. |
 | **VulnerabilityAlert** | A new disclosure matching a watched package. Always notifies; does not auto-revoke. |
 | **LicensePolicy** | The org-wide list of licenses, each classified `unclassified`, `approved`, `banned`, or `needs_approval`, maintained by Approvers. Checked independently of security scanning. `unclassified` is the default for any license not already present in the list — including one that doesn't resolve to a clean SPDX id (dual-license expressions, free-text/"see LICENSE.txt" declarations) — and is a temporary state, resolved as a byproduct of the first package review that hits it. `needs_approval` is different: a deliberate, standing policy decision that this license always requires per-package human judgment (e.g. a copyleft license whose acceptability depends on distribution model) — it does not resolve or "graduate" just because one package under it gets approved. |
@@ -50,7 +50,11 @@ vulnerabilities.
      version.
    - Response returns a request ID immediately (never blocks).
 2. **Parse** the lock file into (ecosystem, name, version) tuples, per the
-   ecosystem's format (§8).
+   ecosystem's format (§8). One request is always a single lock file/single
+   ecosystem — a monorepo build spanning multiple ecosystems submits one
+   request per lock file, all tagged to the same `application_version`; that
+   version's tracked package set is the union across every request tied to
+   it (§3).
 3. **Resolve each package** against the canonical store:
    - Already `approved` → resolved immediately, no scan.
    - Already `rejected`/`revoked` → resolved as rejected immediately, no
@@ -287,9 +291,6 @@ abandoned `building` ones.
 
 ## 11. Open Questions
 
-- **Multi-ecosystem requests** — can one `PackageRequest` span multiple lock
-  files/ecosystems (e.g. a monorepo with both `package-lock.json` and
-  `requirements.txt`), or is a request always single-ecosystem?
 - **`retired` scope** — does retirement apply only to `released` versions
   (the only ones with watch-list entries to remove), or can an abandoned
   `building` version also be marked retired for record-keeping?
