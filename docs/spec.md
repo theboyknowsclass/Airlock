@@ -70,7 +70,14 @@ vulnerabilities.
 5. **Scan pipeline** runs for unknown packages that passed the license gate:
    integrity/hash verification, vulnerability scanning, malware/behavior
    scanning, and scoring (§7). License status is also carried forward as its
-   own score, shown separately from the security severity score (§7).
+   own score, shown separately from the security severity score (§7). A
+   package never reaches step 6 without a genuine scan result — if the
+   scanner tooling itself errors/times out (not a finding, but the tool
+   breaking), the job retries per the queue's bounded-retry policy
+   (constitution Principle VIII) and the request stays `pending`. If retries
+   are exhausted, the job lands in the dead-letter queue for ops triage
+   rather than proceeding to review with incomplete data; the request
+   remains blocked until it's requeued and completes successfully.
 6. **Resolution**: every package that reaches this point always lands in
    front of an Approver — a clean scan never auto-approves. The scan
    pipeline's findings/scores are input to that decision, not a substitute
