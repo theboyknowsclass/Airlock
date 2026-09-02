@@ -50,7 +50,14 @@ CREATE TYPE license_status AS ENUM ('unclassified', 'approved', 'banned', 'needs
 
 CREATE TABLE license_policy (
     id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    identifier     text NOT NULL UNIQUE,         -- normalized SPDX id, or raw text if unparseable
+    -- One ATOMIC license id (e.g. 'MIT', 'GPL-3.0-only') — never a compound
+    -- expression. A package's AND/OR expression (§7) is parsed into its
+    -- component licenses at scan time, each looked up here individually,
+    -- and best-of/worst-of computed over the results; a package's raw
+    -- expression is preserved in packages.findings, not here. A license
+    -- that fails to parse as SPDX at all becomes one entry keyed by the
+    -- raw text itself, classified `unclassified`.
+    identifier     text NOT NULL UNIQUE,
     status         license_status NOT NULL DEFAULT 'unclassified',
     classified_by  text,
     classified_at  timestamptz,
@@ -71,12 +78,17 @@ CREATE TABLE packages (
     name              text NOT NULL,
     version           text NOT NULL,
     status            package_status NOT NULL,
+    -- The decisive atomic license after AND/OR resolution (§7) — best option
+    -- for an OR expression, worst for an AND. Null until the license check
+    -- runs. The raw expression and per-component breakdown live in `findings`.
     license_policy_id uuid REFERENCES license_policy(id),
     security_severity severity,                  -- worst-of, §7 — null until scanned
     findings          jsonb NOT NULL DEFAULT '{}', -- raw integrity/vuln/malware/license results
     nexus_repo_ref    text,                       -- where it landed in Nexus once approved (§8a)
     approved_by       text,
     approved_at       timestamptz,
+    rejected_by       text,
+    rejected_at       timestamptz,
     created_at        timestamptz NOT NULL DEFAULT now(),
     updated_at        timestamptz NOT NULL DEFAULT now(),
     UNIQUE (ecosystem, name, version)
@@ -95,7 +107,11 @@ CREATE TABLE scan_jobs (
     started_at    timestamptz,
     finished_at   timestamptz
 );
-CREATE INDEX ON scan_jobs (package_id) WHERE status IN ('queued', 'running');
+-- UNIQUE, not just an index: the DB itself refuses a second in-flight scan
+-- job for the same package, enforcing the "one canonical job, others
+-- subscribe to its outcome" dedup decision (§6) rather than relying on
+-- application code to check-then-insert correctly under concurrent requests.
+CREATE UNIQUE INDEX ON scan_jobs (package_id) WHERE status IN ('queued', 'running');
 
 -- PackageRequest (§3, §4) — one lock file, one ecosystem, single-source-of-truth for a build's ask
 CREATE TYPE request_source AS ENUM ('build_system', 'manual');
