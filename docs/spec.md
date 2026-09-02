@@ -64,7 +64,7 @@ vulnerabilities.
      Canonical store is updated to `rejected` per the normal rejection rule
      (§4 step 9).
    - Approved, or `needs_approval` (including licenses not yet in the policy
-     list at all) → proceeds to the scan pipeline. [OPEN — see §10: whether
+     list at all) → proceeds to the scan pipeline. [OPEN — see §11: whether
      `needs_approval` should instead hard-block like a banned license, and
      how a license actually gets classified.]
 5. **Scan pipeline** runs for unknown packages that passed the license gate:
@@ -168,6 +168,8 @@ rather than another lock-file parser plugin.
 
 ## 9. Authorization & Audit
 
+- Build systems (machine callers) authenticate with a long-lived API key per
+  registered build system, distinct from the OIDC login humans use.
 - Approve/reject actions require the `approver` role (via OIDC claims/RBAC).
 - Every manual decision (approve, reject, revoke) is written to the audit
   log with actor, timestamp, and rationale.
@@ -177,7 +179,78 @@ rather than another lock-file parser plugin.
   under a prior policy are grandfathered; only new/future scans use the new
   policy.
 
-## 10. Open Questions
+## 10. State Machines
+
+### Package (canonical store)
+
+The source of truth checked before any scan runs. `rejected` and `revoked`
+are both terminal and both auto-reject future requests, but are kept
+distinct: one means "never was good," the other "was good, then flagged."
+
+```mermaid
+stateDiagram-v2
+    [*] --> license_rejected: banned license
+    [*] --> scanning: license approved / needs_approval
+    scanning --> scan_blocked: scanner tooling error
+    scan_blocked --> scanning: requeued after ops triage
+    scanning --> pending_review: scan complete
+    pending_review --> approved: Approver approves
+    pending_review --> rejected: Approver rejects
+    approved --> revoked: Approver revokes (watch-list alert)
+    license_rejected --> [*]
+    rejected --> [*]
+    revoked --> [*]
+```
+
+### PackageRequest
+
+```mermaid
+stateDiagram-v2
+    [*] --> pending
+    pending --> approved: all packages approved
+    pending --> rejected: any package rejected/revoked/license_rejected
+    approved --> [*]
+    rejected --> [*]
+```
+
+### ScanJob
+
+```mermaid
+stateDiagram-v2
+    [*] --> queued
+    queued --> running
+    running --> succeeded
+    running --> failed
+    failed --> queued: retry (bounded)
+    failed --> dead_lettered: retries exhausted → ops alert raised
+    dead_lettered --> queued: manual requeue after ops fix
+    succeeded --> [*]
+```
+
+### ApplicationVersion
+
+```mermaid
+stateDiagram-v2
+    [*] --> building
+    building --> released
+    released --> retired
+```
+
+### LicensePolicy entry
+
+```mermaid
+stateDiagram-v2
+    [*] --> needs_approval
+    needs_approval --> approved: Approver classifies
+    needs_approval --> banned: Approver classifies
+```
+
+Two transitions surfaced by drawing this out aren't decided yet — added to
+§11 below: whether `retired` applies only to `released` versions or also to
+abandoned `building` ones, and whether an `approved`/`banned` license entry
+can later be reclassified (e.g. legal guidance changes) or is final once set.
+
+## 11. Open Questions
 
 - **Vulnerability feed mechanics** for the watch list — sources are decided
   (OSV + NVD + GitHub Advisories, cross-referenced/deduped); polling vs.
@@ -191,3 +264,12 @@ rather than another lock-file parser plugin.
   approved/banned in `LicensePolicy`) a standalone admin action independent
   of any package, or does it happen as a byproduct of an Approver reviewing
   a package that uses it?
+- **Multi-ecosystem requests** — can one `PackageRequest` span multiple lock
+  files/ecosystems (e.g. a monorepo with both `package-lock.json` and
+  `requirements.txt`), or is a request always single-ecosystem?
+- **`retired` scope** — does retirement apply only to `released` versions
+  (the only ones with watch-list entries to remove), or can an abandoned
+  `building` version also be marked retired for record-keeping?
+- **License reclassification** — once a license is set `approved` or
+  `banned`, can an Approver later change it (e.g. legal guidance changes),
+  or is the classification final?
