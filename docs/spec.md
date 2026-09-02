@@ -35,7 +35,8 @@ vulnerabilities.
 | **RequestedPackage** | A single (ecosystem, name, version) line item within a request, with its own resolution status and a link to the scan job that resolved it (if any). |
 | **Package** (canonical store) | The org-wide record of a (ecosystem, name, version)'s approval state: `approved`, `rejected`, or `revoked`. This is the source of truth checked before any scan is triggered. |
 | **ScanJob** | One scan/score run for a (ecosystem, name, version) not yet in the canonical store. Deduplicated — concurrent requests referencing the same package share one job. |
-| **ApplicationVersion** | A build version identifier from a build system. Tracks the resolved package set used, and a `released` flag. |
+| **Application** | A registered application (name, owning team, repo). Parent of its `ApplicationVersion`s — gives watch-list notifications and cross-version reporting an owner to attach to. |
+| **ApplicationVersion** | A build version under an `Application`, identified by the build system. Tracks the resolved package set used, and a `released` flag. |
 | **WatchListEntry** | Links a released ApplicationVersion's packages to ongoing vulnerability monitoring. |
 | **VulnerabilityAlert** | A new disclosure matching a watched package. Always notifies; does not auto-revoke. |
 | **LicensePolicy** | The org-wide list of licenses classified `approved`, `banned`, or `needs_approval`, maintained by Approvers. Checked independently of security scanning. Any license not already present in the list — including one that doesn't resolve to a clean SPDX id (dual-license expressions, free-text/"see LICENSE.txt" declarations) — defaults to `needs_approval` rather than blocking or erroring. |
@@ -102,7 +103,10 @@ vulnerabilities.
   subscribed to ongoing vulnerability monitoring against multiple combined
   feed sources (OSV, NVD, GitHub Advisories, cross-referenced/deduped).
 - When a new disclosure matches a watched package, a `VulnerabilityAlert` is
-  raised and the owning team/Approver is **always notified**.
+  raised and the affected `Application`'s owning team is **always notified**
+  through a pluggable notification layer: in-app is the baseline channel for
+  every Application, with email and/or Slack/Teams webhook configurable
+  per-Application on top of it.
 - Revocation is **not automatic**. An Approver may manually revoke the
   package's canonical approval in response to an alert; only then do future
   requests referencing that (ecosystem, name, version) auto-reject. Existing
