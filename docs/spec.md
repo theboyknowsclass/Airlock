@@ -39,7 +39,7 @@ vulnerabilities.
 | **ApplicationVersion** | A build version under an `Application`, identified by the build system. Tracks the resolved package set used, and `released`/`retired` flags. |
 | **WatchListEntry** | Links a released ApplicationVersion's packages to ongoing vulnerability monitoring. |
 | **VulnerabilityAlert** | A new disclosure matching a watched package. Always notifies; does not auto-revoke. |
-| **LicensePolicy** | The org-wide list of licenses classified `approved`, `banned`, or `needs_approval`, maintained by Approvers. Checked independently of security scanning. Any license not already present in the list — including one that doesn't resolve to a clean SPDX id (dual-license expressions, free-text/"see LICENSE.txt" declarations) — defaults to `needs_approval` rather than blocking or erroring. |
+| **LicensePolicy** | The org-wide list of licenses, each classified `unclassified`, `approved`, `banned`, or `needs_approval`, maintained by Approvers. Checked independently of security scanning. `unclassified` is the default for any license not already present in the list — including one that doesn't resolve to a clean SPDX id (dual-license expressions, free-text/"see LICENSE.txt" declarations) — and is a temporary state, resolved as a byproduct of the first package review that hits it. `needs_approval` is different: a deliberate, standing policy decision that this license always requires per-package human judgment (e.g. a copyleft license whose acceptability depends on distribution model) — it does not resolve or "graduate" just because one package under it gets approved. |
 | **AuditLogEntry** | Records every manual decision — actor, action, target, rationale, timestamp. |
 
 ## 4. Request Lifecycle
@@ -63,10 +63,16 @@ vulnerabilities.
      compliance is treated as a binary policy fact, not a risk judgment call.
      Canonical store is updated to `rejected` per the normal rejection rule
      (§4 step 9).
-   - Approved, or `needs_approval` (including licenses not yet in the policy
-     list at all) → proceeds to the scan pipeline. [OPEN — see §11: whether
-     `needs_approval` should instead hard-block like a banned license, and
-     how a license actually gets classified.]
+   - Approved, `needs_approval`, or `unclassified` (license not yet in the
+     policy list at all) → proceeds to the scan pipeline flagged with its
+     license status alongside the security findings, same path as any other
+     package — it does not hard-block ahead of review.
+   - When the Approver reviews a package whose license was `unclassified`,
+     that review is also the license's first classification: the Approver
+     sets it to `approved`, `banned`, or `needs_approval` as part of the
+     same action. A `needs_approval` license stays that way regardless of
+     any individual package's outcome — it's a standing policy decision, not
+     a per-review default.
 5. **Scan pipeline** runs for unknown packages that passed the license gate:
    integrity/hash verification, vulnerability scanning, malware/behavior
    scanning, and scoring (§7). License status is also carried forward as its
@@ -150,9 +156,17 @@ Every unknown package goes through, at minimum:
 - **Malware/behavior scanning** — detection aimed at worm-style supply-chain
   attacks (suspicious install scripts, exfiltration patterns, etc).
 - **License check** — the package's declared license(s) checked against
-  `LicensePolicy`. Banned → hard auto-reject before this pipeline even runs
-  (§4, step 4). Approved or unreviewed → produces its own **license score**,
-  tracked and shown separately from security severity (not blended in).
+  `LicensePolicy`. Multi-license SPDX expressions are parsed for their
+  actual `AND`/`OR` semantics, not just flattened: an `OR` expression (e.g.
+  `MIT OR Apache-2.0`) resolves to its best/most-permissive option, since
+  the consumer can choose which to comply with; an `AND` expression (e.g.
+  `GPL-2.0 AND MIT`) resolves to its worst option, since all must be
+  complied with simultaneously. A license that doesn't parse as a valid
+  SPDX expression at all (free-text/"see LICENSE.txt") falls back to
+  `unclassified`. Banned → hard auto-reject before this pipeline even runs
+  (§4, step 4). Approved, `needs_approval`, or `unclassified` → produces its
+  own **license score**, tracked and shown separately from security
+  severity (not blended in).
 - **Security scoring** — severity-driven (worst-of): the package's overall
   security severity is the single worst finding across integrity,
   vulnerability, and malware/behavior checks (e.g. any known CVE at High →
@@ -254,33 +268,32 @@ stateDiagram-v2
 
 ### LicensePolicy entry
 
+`unclassified` is a temporary state, resolved as a byproduct of the first
+package review that hits it. `needs_approval` is a deliberate, standing
+policy decision — it is a *destination*, not a waypoint, and does not
+resolve on its own just because one package under it was reviewed.
+
 ```mermaid
 stateDiagram-v2
-    [*] --> needs_approval
-    needs_approval --> approved: Approver classifies
-    needs_approval --> banned: Approver classifies
+    [*] --> unclassified
+    unclassified --> approved: Approver classifies (during package review)
+    unclassified --> banned: Approver classifies (during package review)
+    unclassified --> needs_approval: Approver classifies (during package review)
 ```
 
-Two transitions surfaced by drawing this out aren't decided yet — added to
+One transition surfaced by drawing this out isn't decided yet — added to
 §11 below: whether `retired` applies only to `released` versions or also to
-abandoned `building` ones, and whether an `approved`/`banned` license entry
-can later be reclassified (e.g. legal guidance changes) or is final once set.
+abandoned `building` ones.
 
 ## 11. Open Questions
 
-- **`needs_approval` license handling** — currently proceeds to scan/review
-  flagged, same as any other package. Should it instead hard-block like a
-  banned license until an Approver explicitly classifies it?
-- **License classification flow** — is classifying a license (moving it to
-  approved/banned in `LicensePolicy`) a standalone admin action independent
-  of any package, or does it happen as a byproduct of an Approver reviewing
-  a package that uses it?
 - **Multi-ecosystem requests** — can one `PackageRequest` span multiple lock
   files/ecosystems (e.g. a monorepo with both `package-lock.json` and
   `requirements.txt`), or is a request always single-ecosystem?
 - **`retired` scope** — does retirement apply only to `released` versions
   (the only ones with watch-list entries to remove), or can an abandoned
   `building` version also be marked retired for record-keeping?
-- **License reclassification** — once a license is set `approved` or
-  `banned`, can an Approver later change it (e.g. legal guidance changes),
-  or is the classification final?
+- **License reclassification** — once a license is set `approved`, `banned`,
+  or `needs_approval` (§10), can an Approver later change it via a
+  standalone action (e.g. legal guidance changes), or is a classification
+  final once set?
