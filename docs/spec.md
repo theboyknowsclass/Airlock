@@ -285,15 +285,12 @@ stateDiagram-v2
     unclassified --> needs_approval: Approver classifies (during package review)
 ```
 
-One transition surfaced by drawing this out isn't decided yet — added to
-§11 below: whether `retired` applies only to `released` versions or also to
-abandoned `building` ones.
+`retired` is reachable only from `released` (as drawn above) — a `building`
+version that's abandoned simply stays `building`, unused; no separate
+retirement/archival transition for it.
 
 ## 11. Open Questions
 
-- **`retired` scope** — does retirement apply only to `released` versions
-  (the only ones with watch-list entries to remove), or can an abandoned
-  `building` version also be marked retired for record-keeping?
 - **License reclassification** — once a license is set `approved`, `banned`,
   or `needs_approval` (§10), can an Approver later change it via a
   standalone action (e.g. legal guidance changes), or is a classification
